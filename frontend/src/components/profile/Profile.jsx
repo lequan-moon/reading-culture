@@ -16,15 +16,6 @@ import {
   CircularProgress,
   Alert
 } from '@mui/material';
-import {
-  Timeline,
-  TimelineItem,
-  TimelineSeparator,
-  TimelineConnector,
-  TimelineContent,
-  TimelineDot,
-  TimelineOppositeContent
-} from '@mui/lab';
 import { useAuth } from '../../context/AuthContext';
 import axios from 'axios';
 
@@ -104,6 +95,50 @@ const Profile = () => {
     const date = new Date(dateString);
     return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
   };
+
+  const TimelineItem = ({ date, mood, bookTitle, isLast }) => (
+    <Box sx={{ display: 'flex', mb: 2 }}>
+      {/* Left side - Date */}
+      <Box sx={{ width: '80px', textAlign: 'right', pr: 2 }}>
+        <Typography variant="body2" color="text.secondary">
+          {formatDate(date)}
+        </Typography>
+      </Box>
+
+      {/* Center - Timeline line and dot */}
+      <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', px: 1 }}>
+        <Box
+          sx={{
+            width: 10,
+            height: 10,
+            borderRadius: '50%',
+            bgcolor: 'primary.main',
+            mb: 0.5
+          }}
+        />
+        {!isLast && (
+          <Box
+            sx={{
+              width: 2,
+              flexGrow: 1,
+              bgcolor: 'primary.main',
+              opacity: 0.3
+            }}
+          />
+        )}
+      </Box>
+
+      {/* Right side - Content */}
+      <Box sx={{ flex: 1, pb: 2 }}>
+        <Typography variant="body2" component="span">
+          {mood}
+        </Typography>
+        <Typography variant="caption" display="block" color="text.secondary">
+          {bookTitle}
+        </Typography>
+      </Box>
+    </Box>
+  );
 
   if (loading) return <CircularProgress />;
   if (error) return <Alert severity="error">{error}</Alert>;
@@ -222,27 +257,17 @@ const Profile = () => {
             <Typography variant="h6" gutterBottom>
               Mood Timeline
             </Typography>
-            <Timeline>
+            <Box sx={{ mt: 3 }}>
               {getAllMoodsSorted().map((mood, index) => (
-                <TimelineItem key={index}>
-                  <TimelineOppositeContent color="text.secondary" sx={{ flex: 0.2 }}>
-                    {formatDate(mood.timestamp)}
-                  </TimelineOppositeContent>
-                  <TimelineSeparator>
-                    <TimelineDot color="primary" />
-                    {index < getAllMoodsSorted().length - 1 && <TimelineConnector />}
-                  </TimelineSeparator>
-                  <TimelineContent>
-                    <Typography variant="body2" component="span">
-                      {mood.mood}
-                    </Typography>
-                    <Typography variant="caption" display="block" color="text.secondary">
-                      {mood.bookTitle}
-                    </Typography>
-                  </TimelineContent>
-                </TimelineItem>
+                <TimelineItem
+                  key={index}
+                  date={mood.timestamp}
+                  mood={mood.mood}
+                  bookTitle={mood.bookTitle}
+                  isLast={index === getAllMoodsSorted().length - 1}
+                />
               ))}
-            </Timeline>
+            </Box>
           </Paper>
         </Grid>
       </Grid>
